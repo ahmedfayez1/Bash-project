@@ -1,0 +1,105 @@
+#!/usr/bin/bash
+shopt -s extglob
+
+read -p "Enter your Table Name : " tablename
+if ! [[ -f $tablename ]]; then
+    echo "This $tablename Is Not Found"
+      exit
+fi
+
+# hena 3awz 23rf  el table feh kam column {value ,type} and check for primary key 
+
+#(1)---> at first i will check number of columns i colud ask user to add value for
+tablerows=$(cat ./$tablename"_"meta | wc -l ) #file meta data 
+i=1
+field_value=""
+rowdata=""
+while [[ $i -le $tablerows ]]
+do
+  # get name of col and coltype and check for primamry key  from file meta data 
+            col=$(awk -F: '{ if(NR=='$i') print $1}' $tablename"_"meta)
+	  	    coltype=$(awk -F: '{ if(NR=='$i') print $2}' $tablename"_"meta)	 
+			ispk=$(awk -F: '{ if(NR=='$i') print $3}' $tablename"_"meta)	 
+      
+      #*******function for insert value to table *********************
+
+			function take_val
+      {
+           echo "++++++++++++++++++++++++++++++++++++++++++++++++++"
+           read -p "Enter The Value You Want To Enter The $col With Data Type $coltype  : " field_value
+
+               function Check_type
+               {          
+                  if [[ $coltype == "str" ]];
+                   then
+                        case $field_value in
+
+                          +([a-zA-Z]) )
+                             echo "The Value Is Correct"
+                          ;;
+                          *)
+                              echo "The Data Of Value Is Not Correct"
+                                take_val
+                           ;;
+                        esac
+                  elif [[ $coltype == "int" ]];
+                    then
+
+                       case $field_value in
+                         +([0-9]) )
+                           echo "The Value Is Correct"
+                        ;;
+                         *)
+                          echo "The Data Of Value Is Not Correct"
+                          take_val
+                       ;;
+                      esac
+                fi
+               }
+             Check_type  
+            }
+            #******finction for primamry key *********************
+            function check_pk 
+            {
+                if [[ $i -eq 1 ]];
+                 then
+                   if [[ $ispk = "primary key"  ]];
+                    then
+                            pk=$(cat ./$tablename | wc -l) #table bta3 el data 
+                              pk=$(($pk+1))   
+                            printf $pk >> $tablename 
+                                 
+                      else
+                            take_val
+                    fi
+                  else
+                  take_val
+                fi
+            }
+            check_pk
+
+
+#this mean he should add data then start new line
+		rowdata+="${field_value}"
+
+#this mean he will keep entering data in the same row so sperate after col with :
+		rowdata+="${field_vale}":""
+     ((i++))
+done
+#know i want to add rowdata in the table file 
+	   echo  $rowdata >> $tablename
+#to ensure the data has been added successfuly
+	if [[ $? == 0 ]]
+	then
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+    echo $pk$rowdata
+		echo "+++++++++Data Inserted Successfuly++++++++++++++"
+		 
+	else
+		echo "Ops,There Is An Error In Inserting Ur Data, Please Try Again"
+		 
+	fi
+
+#now reset value of rowdata so the user will have the ability to add data for know row from a begining
+rowdata=""
+ 

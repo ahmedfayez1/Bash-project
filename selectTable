@@ -1,0 +1,110 @@
+#! /usr/bin/bash
+meta=_meta
+PS3="Table:"
+tableName=
+
+    function_getTableName()
+{
+ read -p "please enter your table name:"  t
+    if [[ -f $t ]];
+    then
+    tableName=$t
+    else
+    function_getTableName
+    fi
+}
+   function_getTableName
+
+function_selectAll()
+{
+    cat $tableName
+}
+
+function_selection()
+{
+result=$(
+    awk -F: '
+{
+    print $1 
+}'   ./$tableName$meta)  
+
+select choice in $result exitTheMenu
+do
+case $choice in
+exitTheMenu)
+break;
+;;
+esac
+read -p "enter the value:" value
+result1=$(
+    awk -v ch="$choice" -F: '
+{
+    if($1 == ch)
+{
+    print NR
+}
+}'   ./$tableName$meta)  
+
+
+awk -v res="$result1" -v val="$value" -F: '
+{
+if($res==val)
+{
+    print $0
+}
+}' ./$tableName
+done
+}
+
+
+function_projection()
+{
+result=$(
+    awk -F: '
+{
+    print $1 
+}'   ./$tableName$meta)  
+
+select choice in $result exitTheMenu
+do
+case $choice in
+exitTheMenu)
+break;
+;;
+esac
+result1=$(
+    awk -v ch="$choice" -F: '
+{
+    if($1 == ch)
+{
+    print NR
+}
+}'   ./$tableName$meta)  
+
+awk -v res="$result1" -F: '
+{
+print $res
+}' ./$tableName
+done
+
+}
+
+echo "please choose from the menu below"
+
+select choice in selectAll selection projection exit
+do
+case $choice in
+selectAll)
+function_selectAll
+;;
+selection)
+function_selection
+;;
+projection)
+function_projection
+;;
+exit)
+exit
+;;
+esac
+done

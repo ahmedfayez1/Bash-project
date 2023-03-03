@@ -1,0 +1,25 @@
+#! /usr/bin/bash
+PS3="DB:"
+echo "please choose from the list below:"
+select choice in createDB listDB dropDB connectDB exit
+do
+case $choice in
+createDB)
+. createDB
+;;
+listDB)
+echo your databases are
+ls -F | grep /
+;;
+dropDB)
+. dropDB
+;;
+connectDB)
+connectDB
+;;
+exit)
+exit
+;;
+esac 
+done
+

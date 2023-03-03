@@ -1,0 +1,22 @@
+#! /usr/bin/bash
+
+read -p "please enter your database name:" dbName
+
+
+if [[ $dbName =~ ^[a-zA-Z$_][a-zA-Z0-9$_]+$ ]];
+then 
+if [[ -d $dbName ]];
+then
+echo "already existed"
+else
+mkdir $dbName
+echo "the database has been created successfully"
+fi
+else
+echo "name is not valid"
+. createDB
+fi
+
+
+
+

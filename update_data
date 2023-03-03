@@ -1,0 +1,81 @@
+#!/usr/bin/bash
+shopt -s extglob
+meta="_meta"
+# function for check colmun type*******************************
+               function Check_type
+               {          
+                  if [[ $1 == "str" ]];
+                   then
+                        case $2 in
+
+                          +([a-zA-Z]) )
+                             echo "The Value Is Correct"
+                             return 0
+                          ;;
+                          *)
+                              echo "The Data of Value Is Not Correct"
+                                exit
+                           ;;
+                        esac
+                  elif [[ $1 == "int" ]];
+                    then
+
+                       case $2 in
+                         +([0-9]) )
+                           echo "The Value Is Correct"
+                           return 0
+                        ;;
+                         *)
+                          echo "The Data Of Value is Not Correct"
+                          exit
+                       ;;
+                      esac
+                fi
+               }
+
+read -p "Enter Your Table Name  : " tablename
+ 
+if  ! [[ -f $tablename ]]; then
+     echo "This Table is not Found "
+     exit
+fi
+
+read -p "Enter Your Id : " id
+if [[ -z $id ]]; then
+    echo " Id Is Required "
+    exit
+fi
+
+line_num=`awk -F: -v d=$id '{if(d==$1){print NR}}' $tablename`
+ if [[ -z $line_num ]]; then
+    echo " ID Is Not Found "
+    exit
+ fi
+
+meta_arr=(`awk -F: '{print $1}' $tablename$meta `)
+col_type=(`awk -F: '{print $2}' $tablename$meta `)
+size=${#meta_arr[*]}
+
+
+old_data=(`awk -v d=$id -F ":"  '{  if( $1 == d){for(i=1 ; i<=NF ; i++)print $i }}' $tablename`)
+echo "+++++++++=+++++++ the Old Data ++++++++++++======"
+echo ${old_data[*]}
+
+new_data="${old_data[0]}:"
+for (( i = 1 ; i < $size ; i++ ));
+do
+ echo "++++++++++++++++++++++++++++++++++++++++++"
+read -p "Enter your Data At column ${meta_arr[$i]} With Data Type ${col_type[$i]} : " data
+Check_type ${col_type[$i]}  $data
+#******************* condtion for check type col**********************
+result=$?
+if [[ $result = 0 ]]; then
+    new_data+="$data:"
+fi
+done
+
+sed -i $line_num'd' $tablename
+echo  $new_data  >> $tablename
+    echo "++++++++++++++++++++++++++++++++++++++++++++"
+     echo ${new_data[*]}
+		echo "+++++++++Data Update Successfuly++++++++++++++"

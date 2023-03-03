@@ -1,0 +1,14 @@
+#! /usr/bin/bash
+
+if [[ -d "DB" ]];
+then 
+echo "folder DB already exists"
+cd DB
+selectOfDB
+else
+mkdir ./DB
+echo "folder DB has been created"
+cd DB
+selectOfDB
+fi
+

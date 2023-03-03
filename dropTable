@@ -1,0 +1,17 @@
+#! /usr/bin/bash
+meta=_meta
+function_drop()
+{
+    read -p "please enter your table name:" tableName
+
+if [[ -f $tableName ]];
+then
+rm $tableName
+rm $tableName$meta
+echo "table has been removed"
+else
+echo "table does not exist"
+dropTable
+fi
+}
+function_drop

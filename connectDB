@@ -1,0 +1,46 @@
+#! /usr/bin/bash
+
+read -p "please enter your database name:" dbName
+
+if [[ $dbName =~ ^[a-zA-Z$_][a-zA-Z0-9$_]+$ ]];
+then 
+if [[ -d $dbName ]];
+then
+cd $dbName
+PS3="$dbName:"
+echo "please choose from the list below:"
+select choice in createTable listTable dropTable insertTable selectTable deleteFromTable updateFromTable exit
+do
+case $choice in
+createTable)
+createTable
+;;
+listTable)
+ls -F | grep -v _meta$ | grep -v /
+;;
+dropTable)
+dropTable
+;;
+insertTable)
+insert_Data
+;;
+selectTable)
+selectTable
+;;
+deleteFromTable)
+deleteTable
+;;
+updateFromTable)
+update_data
+;;
+exit)
+exit
+;;
+esac 
+done
+else
+echo "database does not exist"
+fi
+else
+echo "name is not valid"
+fi

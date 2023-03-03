@@ -1,0 +1,60 @@
+#! /usr/bin/bash
+meta=_meta
+id="id:int:primary key"
+
+function_dataType()
+{
+select dataType in int str
+                    do
+                    case $dataType in 
+                    int)
+                    metaData=$metaData:int
+                    ;;
+                    str)
+                    metaData=$metaData:str 
+                    ;;
+                    *)
+                    echo "please choose from the below"
+                    function_dataType
+                    ;;
+                    esac
+                    break;
+                    done
+}
+
+read -p "please enter your table name:" tableName
+if [[ $tableName =~ ^[a-zA-Z$_][a-zA-Z0-9$_]+$ ]];
+then 
+    if [[ -f $tableName ]];
+        then
+        echo "already existed"
+    else
+        touch $tableName
+        touch $tableName$meta
+        echo $id >> $tableName$meta
+        read -p "enter the number of your columns without the id:" numberOfColumns
+            for ((i=0;i<$numberOfColumns;i++))
+            do
+            metaData=
+            read -p "enter the column name:" columnName
+                if [[ $columnName =~ ^[a-zA-Z$_][a-zA-Z0-9$_]+$ ]];
+                then
+                    metaData=$columnName
+                    function_dataType metaData
+                    echo $metaData >> $tableName$meta
+                else
+                    until [[ $columnName =~ ^[a-zA-Z$_][a-zA-Z0-9$_]+$ ]]
+                    do
+                    echo "column name is not available"
+                    read -p "enter the column name:" columnName
+                    done
+                    metaData=$columnName
+                    function_dataType metaData
+                    echo $metaData >> $tableName$meta
+                fi
+            done
+    fi
+else
+echo "name is not valid"
+. createTable
+fi

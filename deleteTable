@@ -1,0 +1,96 @@
+#! /usr/bin/bash
+meta=_meta
+PS3="Table:"
+
+concat()
+{
+    local IFS="$1"
+    shift
+    items="$*"
+}
+
+    function_getTableName()
+{
+ read -p "please enter your table name:" t
+    if [[ -f $t ]];
+    then
+    tableName=$t
+    else
+    function_getTableName
+    fi
+}
+   function_getTableName
+
+function_deleteAll()
+{
+    sed -i '1,$d' ./$tableName
+    echo "all data has been deleted"
+}
+
+
+
+function_deleteByCol()
+{
+    result=$(
+    awk -F: '
+{
+    print $1 
+}'   ./$tableName$meta)  
+
+select choice in $result exitTheMenu
+do
+case $choice in
+exitTheMenu)
+break;
+;;
+esac
+read -p "enter the value:" value
+result1=$(
+    awk -v ch="$choice" -F: '
+{
+    if($1 == ch)
+{
+    print NR
+}
+}'   ./$tableName$meta)  
+
+
+result2=$(awk -v res="$result1" -v val="$value" -F: '
+{
+if($res==val)
+{
+     print NR"d"
+}
+}' ./$tableName)
+
+concat ";" $result2
+if [[ $result2 != "" ]];
+then
+sed -i "$items" ./$tableName
+echo "record has been deleted"
+else
+echo "no record has been found"
+fi
+done
+}
+
+
+
+
+
+echo "please choose from the menu below"
+
+select choice in deleteAll deleteByCol exit
+do
+case $choice in
+deleteAll)
+function_deleteAll
+;;
+deleteByCol)
+function_deleteByCol
+;;
+exit)
+exit
+;;
+esac
+done
